@@ -1,0 +1,30 @@
+name: Build and Deploy Hugo Blog
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install Hugo
+      run: sudo apt-get install hugo -y
+
+    - name: Build site
+      run: hugo
+
+    - name: Deploy via rsync
+      uses: burnett01/rsync-deployments@7.0.1
+      with:
+        switches: "-avz --delete"
+        path: ./public/
+        remote_path: /var/www/ok1sim.cz/blog/
+        remote_host: ${{ secrets.SSH_HOST }}
+        remote_user: ${{ secrets.SSH_USER }}
+        remote_key: ${{ secrets.SSH_KEY }}
